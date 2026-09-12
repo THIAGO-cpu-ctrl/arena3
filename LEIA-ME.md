@@ -23,7 +23,11 @@ O arquivo **`release/ZapFamily.exe`** (~110MB) é o app pronto para Windows 10/1
 - 👥 **Grupos** — criar grupo com foto, adicionar/remover membros, admins, sair, apagar grupo
 - 💬 **Chat em tempo real** (1-a-1 e grupos) — texto, **fotos** 📷, "digitando…", ✓/✓✓, não-lidas
 - ❤️ **Reações** + 🗑️ **apagar para mim ou todos** (sem rastro) + ✐️ **editar** (15 min)
-- 👆 **Selecionar mensagens**: segure uma mensagem → barra verde no topo com responder/copiar/encaminhar/fixar/apagar (várias de uma vez, estilo WhatsApp)
+- 👆 **Selecionar mensagens**: segure uma mensagem → barra verde no topo com responder/reagir/editar/copiar/encaminhar/fixar/apagar (várias de uma vez, estilo WhatsApp)
+- ➡️ **Arrastar para responder**: deslize a mensagem para a direita (celular)
+- 📷 **Câmera**: tire foto na hora ao enviar imagem ou postar status
+- ⚙️ **Configurações**: tudo num lugar só (perfil, temas, grupo, atualizar, sobre, sair)
+- 📌 **Atalho Android**: nome e ícone personalizados viram atalho na tela inicial (Temas → Ícone do app)
 - 🖼️ Clique na foto para **ampliar** • 🟢 **Status online** • 🎨 **Temas** • 📱 **Responsivo**
 - 🔄 **Atualização automática**: confere pedidos/mensagens a cada 5 segundos (mesmo se o tempo real falhar) + 🔔 som de notificação + contador na aba + botão 🔄 e bolinha de conexão 🟢🟡🔴
 - 🔑 **Login persistente**: continua logado mesmo se o servidor reiniciar
@@ -76,7 +80,7 @@ O arquivo **`release/ZapFamily.apk`** (~260KB) é o ZapFamily para celular (Andr
 ### Detalhes
 - O app pede acesso a **câmera, microfone e arquivos** (chamadas de vídeo, áudios e fotos) e guarda o servidor nas configurações.
 - Para trocar de servidor depois: menu ⋮ → **🔗 Servidor**.
-- Se instalou um APK anterior, **desinstale antes** de instalar o novo (a assinatura mudou; daqui pra frente as atualizações instalam por cima).
+- APK v1.3: instala por cima, sem desinstalar (mesma assinatura).
 - Recompilar: pasta `android/` (projeto Gradle nativo, sem dependências) — `gradle assembleRelease` com JDK 17 + SDK 34; o APK assinado sai em `app/build/outputs/apk/release/`. Assinatura: `android/keystore/zapfamily.keystore` (senha em `keystore.properties`).
 
 ## 🚀 MODO AUTOMÁTICO: instalar e usar, sem configurar
@@ -96,7 +100,7 @@ Para o APK e o .exe funcionarem **sem digitar nada** (mesmo do outro lado do mun
 3. Aguarde ~5 min → anote a URL (ex: `https://zapfamily.onrender.com`)
 
 ### Passo 4 — PRONTO! 🎉
-- Servidor oficial: **https://qrlive-pw52bgv7.b4a.run** (Back4app, grátis) — já gravado dentro do APK e do .exe!
+- Servidor oficial: **https://zapfamily-1myoo6ph.b4a.run** (Back4app, grátis) — já gravado dentro do APK e do .exe!
 - **Quem instalar, entra direto no mesmo mundo. Zero configuração.** 🌍
 
 ⚠️ O plano grátis "dorme" quando ninguém usa — a primeira abertura do dia pode demorar ~1 min. Depois fica rápido.

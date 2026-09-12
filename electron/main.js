@@ -30,7 +30,7 @@ let serverURL = '';
 let remoteMode = false;
 
 // Servidor público padrão (mesmo mundo para todo mundo!). Vazio = modo local.
-const DEFAULT_SERVER = 'https://qrlive-pw52bgv7.b4a.run';
+const DEFAULT_SERVER = 'https://zapfamily-1myoo6ph.b4a.run';
 
 function serverCfgPath() { return path.join(app.getPath('userData'), 'server.json'); }
 function loadCfg() {

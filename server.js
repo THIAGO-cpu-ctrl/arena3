@@ -950,6 +950,28 @@ app.delete('/api/blocks/:userId', requireAuth, (req, res) => {
 });
 
 // ═══════════ APAGAR PARA MIM ═══════════
+// ---------- notificações push (APK): novidades desde um id ----------
+app.get('/api/inbox/updates', requireAuth, (req, res) => {
+  const me = req.user.id;
+  const since = Number(req.query.since) || 0;
+  const myGroups = new Set(db.group_members.filter(m => m.user_id === me).map(m => m.group_id));
+  const users = new Map(db.users.map(u => [u.id, u]));
+  const out = [];
+  for (const m of db.messages) {
+    if (m.id <= since || m.sender_id === me || m.deleted) continue;
+    if ((m.deleted_for || []).includes(me)) continue;
+    let chat = null;
+    if (m.group_id) {
+      if (!myGroups.has(m.group_id)) continue;
+      const g = db.groups.find(g => g.id === m.group_id);
+      chat = g ? g.name : 'Grupo';
+    } else if (m.receiver_id !== me) continue;
+    const su = users.get(m.sender_id);
+    out.push({ id: m.id, sender: su ? su.name : 'Alguém', chat, text: previewOf(m) || '', at: m.created_at });
+    if (out.length >= 10) break;
+  }
+  res.json({ messages: out });
+});
 app.post('/api/messages/:id/delete-for-me', requireAuth, (req, res) => {
   const m = db.messages.find(x => x.id === Number(req.params.id));
   if (!m) return res.status(404).json({ error: 'Mensagem não encontrada.' });
