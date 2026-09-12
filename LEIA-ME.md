@@ -96,7 +96,7 @@ Para o APK e o .exe funcionarem **sem digitar nada** (mesmo do outro lado do mun
 3. Aguarde ~5 min → anote a URL (ex: `https://zapfamily.onrender.com`)
 
 ### Passo 4 — PRONTO! 🎉
-- Servidor oficial: **https://zapfamily.onrender.com** — já gravado dentro do APK e do .exe!
+- Servidor oficial: **https://qrlive-pw52bgv7.b4a.run** (Back4app, grátis) — já gravado dentro do APK e do .exe!
 - **Quem instalar, entra direto no mesmo mundo. Zero configuração.** 🌍
 
 ⚠️ O plano grátis "dorme" quando ninguém usa — a primeira abertura do dia pode demorar ~1 min. Depois fica rápido.

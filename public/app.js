@@ -243,6 +243,7 @@ function themeCardHTML(name, icon, vars, sel, onclick, delOnclick) {
   renderIconChoices();
   renderThemeLocks();
   updateCRTBtn();
+  apkShortcutRow();
 }
 function toHexColor(c) {
   c = String(c).trim();
@@ -758,6 +759,24 @@ async function doRegister(ev) {
     enterApp(data.user);
   } catch (e) { authError(e.message); }
   return false;
+}
+function openSettings() { $('modal-settings').classList.remove('hidden'); }
+function showAbout() {
+  toast('💬 ZapFamily v1.3 • ' + location.host);
+}
+function apkShortcutRow() {
+  const r = $('apk-shortcut-row');
+  if (r) r.style.display = navigator.userAgent.includes('ZapFamilyApp') ? '' : 'none';
+}
+async function updateApkShortcut() {
+  try {
+    if (!window.ZapApp) { toast('⚠️ Só funciona no app Android.'); return; }
+    const name = zfAppName();
+    const src = (typeof getAppIcon === 'function') ? getAppIcon() : (localStorage.getItem('zf-icon') || 'icons/icon-green.png');
+    const durl = src.startsWith('data:') ? src : await dataURLfromURL(src);
+    window.ZapApp.updateShortcut(name || 'ZapFamily', durl.split(',')[1]);
+    toast('📌 Atalho enviado! Confirme na tela inicial.');
+  } catch (e) { toast('⚠️ ' + e.message); }
 }
 async function doLogout() {
   try { await api('POST', '/api/logout'); } catch {}
@@ -1817,6 +1836,7 @@ function openStatusAdd() {
   $('status-text').value = '';
   $('status-caption').value = '';
   $('status-file').value = '';
+  $('status-cam').value = '';
   $('status-preview').innerHTML = '';
   statusAddTab('image');
   $('modal-statusadd').classList.remove('hidden');
@@ -1827,6 +1847,7 @@ function statusAddTab(kind) {
   $('status-file-row').classList.toggle('hidden', kind === 'text');
   $('status-text-row').classList.toggle('hidden', kind !== 'text');
   $('status-file').accept = kind === 'video' ? 'video/*' : 'image/*';
+  $('status-cam-btn').style.display = kind === 'image' ? '' : 'none';
 }
 function statusFilePreview(input) {
   const f = input.files[0];
@@ -1836,6 +1857,12 @@ function statusFilePreview(input) {
     ? `<video src="${url}" controls style="max-width:100%;border-radius:10px"></video>`
     : `<img src="${url}" style="max-width:100%;border-radius:10px" alt="">`;
 }
+function statusCamPreview(input) {
+  const f = input.files[0];
+  if (!f) return;
+  $('status-file').value = '';
+  $('status-preview').innerHTML = `<img src="${URL.createObjectURL(f)}" style="max-width:100%;border-radius:10px" alt="">`;
+}
 async function sendStatus() {
   try {
     if (statusAddKind === 'text') {
@@ -1844,7 +1871,7 @@ async function sendStatus() {
       const bg = document.querySelector('input[name="status-bg"]:checked');
       await api('POST', '/api/status', { kind: 'text', text, bgcolor: bg ? bg.value : '#075E54' });
     } else {
-      const f = $('status-file').files[0];
+      const f = $('status-file').files[0] || $('status-cam').files[0];
       if (!f) { toast('⚠️ Escolha o arquivo.'); return; }
       const maxMB = statusAddKind === 'video' ? 9 : 2;
       if (f.size > maxMB * 1024 * 1024) { toast(`⚠️ Arquivo muito grande (máx ${maxMB}MB).`); return; }
@@ -1941,6 +1968,7 @@ function renderPinBar() {
 // ============ SELEÇÃO DE MENSAGENS (estilo WhatsApp: segurar + barra no topo) ============
 let selMsgs = [];
 let lpTimer = null, lpId = null, lpX = 0, lpY = 0, lpFired = false;
+let swX = 0, swY = 0, swT = 0, swId = null;
 function msgTap(ev, id) {
   if (selMsgs.length) { toggleSel(id); return; }
   const el = $('msg' + id);
@@ -1962,6 +1990,7 @@ function bindSelPress() {
     if (!id) return;
     const t = (e.touches && e.touches[0]) || e;
     lpId = id; lpX = t.clientX; lpY = t.clientY; lpFired = false;
+    swX = t.clientX; swY = t.clientY; swT = Date.now(); swId = id;
     clearTimeout(lpTimer);
     lpTimer = setTimeout(() => {
       lpFired = true;
@@ -1977,7 +2006,14 @@ function bindSelPress() {
   const end = () => { lpId = null; clearTimeout(lpTimer); };
   box.addEventListener('touchstart', start, { passive: true });
   box.addEventListener('touchmove', move, { passive: true });
-  box.addEventListener('touchend', end, { passive: true });
+  box.addEventListener('touchend', (e) => {
+    if (!selMsgs.length && swId !== null && e.changedTouches && e.changedTouches[0]) {
+      const t = e.changedTouches[0];
+      const dx = t.clientX - swX, dy = t.clientY - swY, dt = Date.now() - swT;
+      if (dx > 60 && Math.abs(dy) < 45 && dt < 900) { const id = swId; swId = null; end(); setReply(id); return; }
+    }
+    swId = null; end();
+  }, { passive: true });
   box.addEventListener('touchcancel', end, { passive: true });
   box.addEventListener('mousedown', start);
   box.addEventListener('mousemove', move);
@@ -2003,8 +2039,12 @@ function paintSel() {
   const one = selMsgs.length === 1;
   const ms = selMsgs.map(id => currentMessages.find(x => x.id === id)).filter(Boolean);
   const canCopy = ms.length && ms.every(m => (m.content || m.file_name || (m.poll && m.poll.question)));
+  const m0 = one ? ms[0] : null;
+  const canEdit = m0 && m0.sender_id === ME.id && !m0.deleted && ['text','image','video','audio','file'].includes(m0.type) && (Date.now() - new Date(m0.created_at).getTime() < 15*60*1000);
   let h = '';
   if (one) h += '<button title="Responder" onclick="selReply()">↩️</button>';
+  if (one) h += '<button title="Reagir" onclick="selReact()">🙂</button>';
+  if (canEdit) h += '<button title="Editar" onclick="selEdit()">✏️</button>';
   if (canCopy) h += '<button title="Copiar" onclick="selCopy()">📋</button>';
   h += '<button title="Encaminhar" onclick="selForward()">➡️</button>';
   if (one) h += '<button title="Fixar" onclick="selPin()">📌</button>';
@@ -2021,6 +2061,8 @@ function exitSel() {
 }
 function selReply() { if (selMsgs.length !== 1) return; const id = selMsgs[0]; exitSel(); setReply(id); }
 function selPin() { if (selMsgs.length !== 1) return; const id = selMsgs[0]; exitSel(); togglePin(id); }
+function selReact() { if (selMsgs.length !== 1) return; const id = selMsgs[0]; exitSel(); toggleReactBar(id); }
+function selEdit() { if (selMsgs.length !== 1) return; const id = selMsgs[0]; exitSel(); openEditModal(id); }
 async function selCopy() {
   const ms = selMsgs.map(id => currentMessages.find(x => x.id === id)).filter(Boolean);
   const txt = ms.map(m => m.content || m.file_name || ((m.poll && m.poll.question) || '')).filter(Boolean).join('\n');

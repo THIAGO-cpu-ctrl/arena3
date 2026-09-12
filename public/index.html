@@ -103,11 +103,7 @@
       </div>
       <div class="me-actions">
         <span id="conn-dot" class="conn-dot" title="Conectado">🟢</span>
-        <button title="Atualizar agora" onclick="manualSync()">🔄</button>
-        <button id="theme-btn" title="Temas e aparência" onclick="openThemeModal()">🎨</button>
-        <button title="Novo grupo" onclick="openCreateGroup()">👥</button>
-        <button title="Meu perfil" onclick="openProfileModal()">⚙️</button>
-        <button title="Sair" onclick="doLogout()">🚪</button>
+        <button title="Configurações" onclick="openSettings()">⚙️</button>
       </div>
     </div>
 
@@ -190,16 +186,19 @@
         <button type="button" title="Cancelar resposta" onclick="cancelReply()">✖</button>
       </div>
       <form class="composer" onsubmit="return sendMessage(event)">
-        <button type="button" class="emoji-btn" title="Emojis" onclick="toggleEmojiPanel()">😊</button>
-        <button type="button" class="emoji-btn" title="Figurinhas" onclick="toggleStickerPanel()">⭐</button>
         <button type="button" class="emoji-btn" title="Anexar" onclick="toggleAttachMenu()">📎</button>
+        <button type="button" class="emoji-btn" title="Figurinhas" onclick="toggleStickerPanel()">⭐</button>
         <input id="chat-file-input" type="file" accept="image/*" class="hidden" onchange="onChatFile(this)">
+        <input id="chat-cam-input" type="file" accept="image/*" capture="environment" class="hidden" onchange="onChatFile(this)">
         <input id="chat-video-input" type="file" accept="video/*" class="hidden" onchange="onChatVideo(this)">
         <input id="chat-audio-input" type="file" accept="audio/*" class="hidden" onchange="onChatAudio(this)">
         <input id="chat-doc-input" type="file" class="hidden" onchange="onChatDoc(this)">
         <input id="sticker-file-input" type="file" accept="image/*" class="hidden" onchange="onStickerFile(this)">
+        <div class="comp-pill">
+          <button type="button" class="emoji-btn" title="Emojis" onclick="toggleEmojiPanel()">😊</button>
+          <input id="msg-input" type="text" placeholder="Digite uma mensagem..." autocomplete="off" maxlength="2000" oninput="onTyping()">
+        </div>
         <button type="button" class="emoji-btn" id="mic-btn" title="Gravar áudio" onclick="toggleRecord()">🎤</button>
-        <input id="msg-input" type="text" placeholder="Digite uma mensagem..." autocomplete="off" maxlength="2000" oninput="onTyping()">
         <button class="send-btn" type="submit">➤</button>
       </form>
       <div id="emoji-panel" class="emoji-panel hidden"></div>
@@ -209,6 +208,7 @@
       </div>
       <div id="attach-menu" class="attach-menu hidden">
         <button type="button" onclick="toggleAttachMenu();document.getElementById('chat-file-input').click()">📷 Foto</button>
+        <button type="button" onclick="toggleAttachMenu();document.getElementById('chat-cam-input').click()">📷 Câmera</button>
         <button type="button" onclick="toggleAttachMenu();document.getElementById('chat-video-input').click()">🎬 Vídeo</button>
         <button type="button" onclick="toggleAttachMenu();document.getElementById('chat-audio-input').click()">🎵 Áudio</button>
         <button type="button" onclick="toggleAttachMenu();document.getElementById('chat-doc-input').click()">📎 Arquivo</button>
@@ -598,6 +598,9 @@
       <input id="theme-title" type="text" placeholder="Nome do app/janela (vazio = ZapFamily)" maxlength="60">
       <button class="mini-btn ok" onclick="saveAppTitle()">✏️ Aplicar nome</button>
     </div>
+    <div class="stz-row" id="apk-shortcut-row" style="display:none">
+      <button class="mini-btn" onclick="updateApkShortcut()">📌 Atualizar atalho na tela inicial</button>
+    </div>
     </div>
     <div class="stz-row">
       <input id="theme-name" type="text" placeholder="Nome do tema..." maxlength="30">
@@ -682,6 +685,8 @@
     </div>
     <div id="status-file-row" class="stz-row">
       <input id="status-file" type="file" accept="image/*" onchange="statusFilePreview(this)">
+      <input id="status-cam" type="file" accept="image/*" capture="environment" class="hidden" onchange="statusCamPreview(this)">
+      <button type="button" class="mini-btn" id="status-cam-btn" onclick="document.getElementById('status-cam').click()">📷 Câmera</button>
     </div>
     <div id="status-preview"></div>
     <div id="status-text-row" class="hidden">
@@ -745,6 +750,22 @@
 </div>
 <div id="crt-overlay"></div>
 <div id="glitch-overlay" class="hidden"><div class="glitch-year">1998</div></div>
+<div id="modal-settings" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>⚙️ Configurações</h3>
+      <button onclick="closeModals()">✖</button>
+    </div>
+    <div class="set-list">
+      <button onclick="closeModals();openProfileModal()">👤 Meu perfil<small>Foto, nome, bio e senha</small></button>
+      <button onclick="closeModals();openThemeModal()">🎨 Temas e aparência<small>Cores, fontes, papel de parede, ícone do app</small></button>
+      <button onclick="closeModals();openCreateGroup()">👥 Novo grupo<small>Criar grupo com amigos</small></button>
+      <button onclick="closeModals();manualSync()">🔄 Atualizar agora<small>Buscar novidades</small></button>
+      <button onclick="closeModals();showAbout()">ℹ️ Sobre<small>Versão e servidor</small></button>
+      <button class="danger" onclick="doLogout()">🚪 Sair da conta</button>
+    </div>
+  </div>
+</div>
 <div id="toasts" class="toasts"></div>
 
 <script src="/socket.io/socket.io.js"></script>
